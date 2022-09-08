@@ -1,0 +1,54 @@
+# This script runs all the tests using a Docker image with MATLAB, numgeomci/mtest.
+# To adapt this script for another numgeomworks repository, add numgeomci's
+# Docker Hub token as a secret DOCKER_HUB_ACCESS_TOKEN in the github repository.
+# You also need to customize the MATLAB commands below.
+
+name: MYPROJ CI
+on:
+  pull_request:
+    branches:
+      - main
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  MYPROJ-CI:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo " The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo " This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo " The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Obtain repository name
+        shell: bash
+        run: echo "##[set-output name=repo;]$(echo ${GITHUB_REPOSITORY} | awk -F / '{print $2}')"
+        id: extract_tag
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: numgeomci
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Checkout dependencies
+        run: |
+          for dep in $(cat dependencies.txt matlab/examples/dependencies.txt)
+          do
+            git clone --recurse-submodules https://numgeomciowner:${{ secrets.NUMGEOMCI_GITHUB_TOKEN }}@github.com/numgeomworks/${dep} ../${dep}
+          done
+      - run: echo " The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo " The workflow is now ready to test your code on the runner."
+      - name: Run test in Docker image
+        run: |  # test
+          docker pull numgeomci/mtest
+          (docker run -v $PWD/..:/root/shared -w /root/shared/${{ steps.extract_tag.outputs.repo }}/matlab numgeomci/mtest \
+          /usr/local/bin/matlab -nodesktop -nosplash -r \
+          'run build_myproj; run tests/testall') |& tee matlab_output.txt
+          [ -n "$(tail matlab_output.txt 2> /dev/null )" ] && \
+          [ -z "$(egrep '^Assertion failed\.' matlab_output.txt 2> /dev/null)" ] && \
+          [ -z "$(egrep 'Error (in|using) |License Manager Error|matlab_crash_dump|Executing startup failed' matlab_output.txt 2> /dev/null)" ]
+          [ "$(egrep -c '^Warning:' matlab_output.txt 2> /dev/null)" = "0" ] || \
+          echo "::warning:: There are $(egrep -c '^Warning:' matlab_output.txt 2> /dev/null) warnings."
