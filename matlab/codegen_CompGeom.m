@@ -1,4 +1,4 @@
-function codegen_myproj(varargin)
+function codegen_CompGeom(varargin)
 % Build script for myproj
 %
 %    codegen_myproj <options>

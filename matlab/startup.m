@@ -1,11 +1,10 @@
 function startup
 % startup script
 
-update_module('myproj', fileparts(myproj_root));
+update_module('CompGeom', fileparts(CompGeom_root));
 
-addpath(myproj_root);  % update name here
-addpath(fullfile(myproj_root, 'submodule1'));
-addpath(fullfile(myproj_root, 'submodule2'));
+addpath(CompGeom_root);  % update name here
+addpath(fullfile(CompGeom_root, 'triangulation'));
 
 if exist(fullfile('..', '.gitmodule'), 'file') && ...
     ~exist(fullfile('..', 'cpp', 'src'), 'dir')
@@ -14,7 +13,7 @@ if exist(fullfile('..', '.gitmodule'), 'file') && ...
 end
 
 % Update module name here and also ../dependencies.txt
-load_dependencies('myproj');
+load_dependencies('CompGeom');
 end
 
 function load_dependencies(modulename)
