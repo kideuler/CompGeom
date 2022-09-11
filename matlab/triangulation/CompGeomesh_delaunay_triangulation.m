@@ -22,7 +22,7 @@ if nargin < 1
 end
 assert(size(xs,2) == 2);
 nv = int32(size(xs,1));
-upper_bound = nv*nv;
+upper_bound = nv*nv*3;
 mesh = CompGeomesh_create(int32(2),nv+3,upper_bound);
 for i = 1:nv
     for j = int32(1):2
@@ -66,11 +66,20 @@ for n = 1:nv
     mesh = CompGeomesh_BowyerWatson_insert_2d(mesh, n, tri);
 end
 
+
 for ii = 1:mesh.ntris
     if ~mesh.delete(ii)
         for jj = int32(1):3
             if mesh.elemtables(1).conn(ii,jj) > nv
                 mesh.delete(ii) = true;
+                for kk = int32(1):3
+                    hfid = mesh.sibhfs(ii,kk);
+                    eid = sfemesh_hfid2eid(hfid);
+                    lid = sfemesh_hfid2lid(hfid);
+                    if eid~=0 && lid~=0
+                        mesh.sibhfs(eid,lid) = 0;
+                    end
+                end
                 break;
             end
         end
@@ -79,18 +88,4 @@ end
 mesh = CompGeomesh_resize_coords(mesh, nv);
 
 mesh = CompGeomesh_delete(mesh);
-end
-
-function bool = inside_tri(mesh,tri,n)
-xs_ = mesh.coords(mesh.elemtables(1).conn(tri,1:3),1:2);
-v0 = xs_(1,1:2);
-v1 = xs_(2,1:2) - xs_(1,1:2);
-v2 = xs_(3,1:2) - xs_(1,1:2);
-a = (detv(mesh.coords(n,1:2),v2) - detv(v0,v2))/detv(v1,v2);
-b = -(detv(mesh.coords(n,1:2),v1) - detv(v0,v1))/detv(v1,v2);
-bool = a>0 && b>0 && a+b < 1;
-end
-
-function d = detv(u,v)
-d = u(1)*v(2) - u(2)*v(1);
 end

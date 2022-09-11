@@ -32,5 +32,6 @@ coder.inline('never');
 mesh.elemtables(conntableidx).conn = resize_numdata(mesh.elemtables(conntableidx).conn, n);
 mesh.badtris = resize_numdata(mesh.badtris, n);
 mesh.delete = resize_numdata(mesh.delete, n);
+mesh.on_boundary = resize_numdata(mesh.on_boundary, n);
 mesh.sibhfs = resize_numdata(mesh.sibhfs, n);
 end

@@ -55,7 +55,8 @@ if nargin == 0
         'facetsets', coder.typeof(FacetSet, [inf 1]), ...
         'sibhfs', coder.typeof(int32(0), [inf 6], [1 1]), ...
         'delete', coder.typeof(false, [inf 1]), ...
-        'bwork1', coder.typeof(false, [inf 1]));
+        'bwork1', coder.typeof(false, [inf 1]), ...
+        'on_boundary', coder.typeof(false, [inf 1]));
     if nargout < 2
         mesh = coder.cstructname(mesh, 'CompGeoMesh');
     end
@@ -73,6 +74,7 @@ else
     mesh.('sibhfs') = m2cNullcopy(zeros(m2cZero, m2cIgnoreRange(geom_ndims+1), 'int32'));
     mesh.('delete') = m2cNullcopy(false(m2cZero, 1));
     mesh.('bwork1') = m2cNullcopy(false(m2cZero, 1));
+    mesh.('on_boundary') = m2cNullcopy(false(m2cZero, 1));
     if nargout < 2
         coder.cstructname(mesh, 'CompGeoMesh');
     end

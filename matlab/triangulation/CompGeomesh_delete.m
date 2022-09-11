@@ -15,6 +15,7 @@ ntris = int32(0);
 sz2e = int32(size(mesh.elemtables(1).conn,2));
 sz2s = int32(size(mesh.sibhfs,2));
 idx_ = zeros(mesh.ntris,1,'int32');
+
 for ii = 1:mesh.ntris
     if ~mesh.delete(ii)
         ntris = ntris + 1;
@@ -31,13 +32,22 @@ end
 mesh.ntris = ntris;
 
 for ii = 1:ntris
+    nside = int32(0);
     for jj = 1:sz2s
         if mesh.sibhfs(ii,jj)
             hfid = mesh.sibhfs(ii,jj);
             eid = sfemesh_hfid2eid(hfid);
             lid = sfemesh_hfid2lid(hfid);
             mesh.sibhfs(ii,jj) = sfemesh_elids2hfid(idx_(eid),lid);
+            nside = nside + 1;
         end
     end
+    if nside == sz2s
+        mesh.on_boundary(ii) = false;
+    else
+        mesh.on_boundary(ii) = true;
+    end
 end
+
+mesh.delete(1:end) = false;
 end

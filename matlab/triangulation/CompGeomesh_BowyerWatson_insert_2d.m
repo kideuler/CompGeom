@@ -46,10 +46,13 @@ for ii = 1:nsegs
         hfid = mesh.vedge(order_(ii));
         mesh.sibhfs(sfemesh_hfid2eid(hfid),sfemesh_hfid2lid(hfid)) = ...
             sfemesh_elids2hfid(mesh.ntris,1);
+    else
+        mesh.on_boundary(mesh.ntris) = true;
     end
     mesh.sibhfs(mesh.ntris,2) = sfemesh_elids2hfid(ntri_b + modi(ii,nsegs) + 1,3);
     mesh.sibhfs(mesh.ntris,3) = sfemesh_elids2hfid(ntri_b + modi(ii-2,nsegs) + 1,2);
 end
+
 end
 
 function z = modi(a,b)
