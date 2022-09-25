@@ -2,7 +2,7 @@ function draw_delaunay_mesh(mesh)
 figure;
 hold on
 edges = int32([1,2;2,3;3,1]);
-for i = 1:mesh.ntris
+for i = 1:mesh.nelems
     if ~mesh.delete(i) && ~mesh.on_boundary(i)
         for j = int32(1):3
         line([mesh.coords(mesh.elemtables(1).conn(i,edges(j,1)),1),mesh.coords(mesh.elemtables(1).conn(i,edges(j,2)),1)], ...
@@ -10,7 +10,7 @@ for i = 1:mesh.ntris
         end
     end
 end
-for i = 1:mesh.ntris
+for i = 1:mesh.nelems
     if ~mesh.delete(i) && mesh.on_boundary(i)
         for j = int32(1):3
         line([mesh.coords(mesh.elemtables(1).conn(i,edges(j,1)),1),mesh.coords(mesh.elemtables(1).conn(i,edges(j,2)),1)], ...
@@ -19,7 +19,7 @@ for i = 1:mesh.ntris
     end
 end
 
-for i = 1:mesh.ntris
+for i = 1:mesh.nelems
     if ~mesh.delete(i)
         C = (mesh.coords(mesh.elemtables(1).conn(i,1),1:2) + ...
         mesh.coords(mesh.elemtables(1).conn(i,2),1:2) + ...

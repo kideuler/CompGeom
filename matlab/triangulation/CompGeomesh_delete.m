@@ -11,27 +11,27 @@ function mesh = CompGeomesh_delete(mesh)
 
 %#codegen -args {CompGeoMesh}
 
-ntris = int32(0);
+nelems = int32(0);
 sz2e = int32(size(mesh.elemtables(1).conn,2));
 sz2s = int32(size(mesh.sibhfs,2));
-idx_ = zeros(mesh.ntris,1,'int32');
+idx_ = zeros(mesh.nelems,1,'int32');
 
-for ii = 1:mesh.ntris
+for ii = 1:mesh.nelems
     if ~mesh.delete(ii)
-        ntris = ntris + 1;
+        nelems = nelems + 1;
         for jj = 1:sz2e
-            mesh.elemtables(1).conn(ntris,jj) = mesh.elemtables(1).conn(ii,jj);
+            mesh.elemtables(1).conn(nelems,jj) = mesh.elemtables(1).conn(ii,jj);
         end
         for jj = 1:sz2s
-            mesh.sibhfs(ntris,jj) = mesh.sibhfs(ii,jj);
+            mesh.sibhfs(nelems,jj) = mesh.sibhfs(ii,jj);
         end
-        mesh.delete(ntris) = false; 
-        idx_(ii) = ntris;
+        mesh.delete(nelems) = false; 
+        idx_(ii) = nelems;
     end
 end
-mesh.ntris = ntris;
+mesh.nelems = nelems;
 
-for ii = 1:ntris
+for ii = 1:nelems
     nside = int32(0);
     for jj = 1:sz2s
         if mesh.sibhfs(ii,jj)

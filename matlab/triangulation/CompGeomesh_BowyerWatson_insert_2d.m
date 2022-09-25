@@ -35,22 +35,22 @@ end
 [mesh, nsegs, order_] = unique_edge_reorder(mesh,nsegs); 
 
 % adding the new triangles from unique segments
-ntri_b = mesh.ntris;
+ntri_b = mesh.nelems;
 for ii = 1:nsegs
-    mesh.ntris = mesh.ntris + 1;
-    mesh.elemtables(1).conn(mesh.ntris,1) = mesh.facets(order_(ii),1);
-    mesh.elemtables(1).conn(mesh.ntris,2) = mesh.facets(order_(ii),2);
-    mesh.elemtables(1).conn(mesh.ntris,3) = n;
-    mesh.sibhfs(mesh.ntris,1) = mesh.vedge(order_(ii));
+    mesh.nelems = mesh.nelems + 1;
+    mesh.elemtables(1).conn(mesh.nelems,1) = mesh.facets(order_(ii),1);
+    mesh.elemtables(1).conn(mesh.nelems,2) = mesh.facets(order_(ii),2);
+    mesh.elemtables(1).conn(mesh.nelems,3) = n;
+    mesh.sibhfs(mesh.nelems,1) = mesh.vedge(order_(ii));
     if mesh.vedge(order_(ii))
         hfid = mesh.vedge(order_(ii));
         mesh.sibhfs(sfemesh_hfid2eid(hfid),sfemesh_hfid2lid(hfid)) = ...
-            sfemesh_elids2hfid(mesh.ntris,1);
+            sfemesh_elids2hfid(mesh.nelems,1);
     else
-        mesh.on_boundary(mesh.ntris) = true;
+        mesh.on_boundary(mesh.nelems) = true;
     end
-    mesh.sibhfs(mesh.ntris,2) = sfemesh_elids2hfid(ntri_b + modi(ii,nsegs) + 1,3);
-    mesh.sibhfs(mesh.ntris,3) = sfemesh_elids2hfid(ntri_b + modi(ii-2,nsegs) + 1,2);
+    mesh.sibhfs(mesh.nelems,2) = sfemesh_elids2hfid(ntri_b + modi(ii,nsegs) + 1,3);
+    mesh.sibhfs(mesh.nelems,3) = sfemesh_elids2hfid(ntri_b + modi(ii-2,nsegs) + 1,2);
 end
 
 end

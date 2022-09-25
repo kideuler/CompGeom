@@ -49,12 +49,12 @@ mesh.elemtables(1).conn(1,3) = nv+3;
 mesh.sibhfs(1,1) = 0;
 mesh.sibhfs(1,2) = 0;
 mesh.sibhfs(1,3) = 0;
-mesh.ntris = int32(1);
+mesh.nelems = int32(1);
 
 
 tri = int32(0);
 for n = 1:nv
-    for ii = 1:mesh.ntris
+    for ii = 1:mesh.nelems
         if ~mesh.delete(ii)
             if inside_tri(mesh,ii,n)
                 tri = ii;
@@ -67,7 +67,7 @@ for n = 1:nv
 end
 
 
-for ii = 1:mesh.ntris
+for ii = 1:mesh.nelems
     if ~mesh.delete(ii)
         for jj = int32(1):3
             if mesh.elemtables(1).conn(ii,jj) > nv

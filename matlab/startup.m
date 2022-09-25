@@ -5,6 +5,7 @@ update_module('CompGeom', fileparts(CompGeom_root));
 
 addpath(CompGeom_root);  % update name here
 addpath(fullfile(CompGeom_root, 'triangulation'));
+addpath(fullfile(CompGeom_root, 'triangulation/memory'));
 
 if exist(fullfile('..', '.gitmodule'), 'file') && ...
     ~exist(fullfile('..', 'cpp', 'src'), 'dir')
