@@ -1,21 +1,22 @@
-function bool = inside_tet(mesh,tet,n)
+function [mesh, bool] = inside_tet(mesh,tet,n)
 %% NEEDS REWORK
-xs_ = mesh.coords(mesh.elemtables(1).conn(tet,1:4),1:3);
-[~,leid] = obtain_facets(SFE_TET_4,int8(1));
-n1 = comp_normal(xs_(leid,1:3));
-[~,leid] = obtain_facets(SFE_TET_4,int8(2));
-n2 = comp_normal(xs_(leid,1:3));
-[~,leid] = obtain_facets(SFE_TET_4,int8(3));
-n3 = comp_normal(xs_(leid,1:3));
-[~,leid] = obtain_facets(SFE_TET_4,int8(4));
-n4 = comp_normal(xs_(leid,1:3));
+faces = int32([1,3,2;1,2,4;2,3,4;3,1,4]);
+oppn = int32([4;3;1;2]);
+C = mesh.coords(n,1:3);
+bool = true;
+for ii = 1:4
+    txs = mesh.coords(mesh.elemtables(1).conn(tet,faces(ii,1:3)),1:3);
+    opp = mesh.coords(mesh.elemtables(1).conn(tet,oppn(ii)),1:3);
+    bool = bool && on_side(txs,C, opp);
+end
 
-b1 = (mesh.coords(n,1:3) - xs_(1,1:3))*n1';
-b2 = (mesh.coords(n,1:3) - xs_(1,1:3))*n2';
-b3 = (mesh.coords(n,1:3) - xs_(2,1:3))*n3';
-b4 = (mesh.coords(n,1:3) - xs_(1,1:3))*n4';
+end
 
-bool = b1 < 0 || b2 < 0 || b3 < 0 || b4 < 0;
+function bool = on_side(txs,center, opp)
+nrm = comp_normal(txs);
+v1 = opp - txs(1,1:3);
+v2 = center - txs(1,1:3);
+bool = sign(v1*nrm') == sign(v2*nrm');
 end
 
 function nrm = comp_normal(xs)

@@ -18,12 +18,24 @@ function mesh = CompGeomesh_delaunay_tetrihedrization(xs)
 %#codegen -args {coder.typeof(0, [inf 3])}
 
 if nargin < 1
-    xs = rand(30,3);
+    xs = rand(125,3);
+    bar = linspace(0,1,5);
+    l = 0;
+    for i = 1:5
+        for j = 1:5
+            for k = 1:5
+                l=l+1;
+                xs(l,1:3) = [bar(i),bar(j),bar(k)];
+            end
+        end
+    end
+    xs = rand(20,3);
+    xs = [0,0,0;1,0,0;1,1,0;0,1,0;0,0,1;1,0,1;1,1,1;0,1,1];
 end
 assert(size(xs,2) == 3);
 
 nv = int32(size(xs,1));
-upper_bound = nv*nv;
+upper_bound = nv*nv*nv;
 mesh = CompGeomesh_create(int32(3),nv+4,upper_bound);
 for i = 1:nv
     for j = int32(1):3
@@ -67,7 +79,8 @@ tet = int32(0);
 for n = 1:nv
     for ii = 1:mesh.nelems
         if ~mesh.delete(ii)
-            if inside_tet(mesh,ii,n)
+            [mesh, bool] = inside_tet(mesh,ii,n);
+            if bool
                 tet = ii;
                 break;
             end
@@ -78,5 +91,26 @@ for n = 1:nv
     mesh = CompGeomesh_BowyerWatson_insert_3d(mesh, n, tet);
 end
 
-%mesh = CompGeomesh_delete(mesh);
+for ii = 1:mesh.nelems
+    if ~mesh.delete(ii)
+        for jj = int32(1):4
+            if mesh.elemtables(1).conn(ii,jj) > nv
+                mesh.delete(ii) = true;
+                for kk = int32(1):4
+                    hfid = mesh.sibhfs(ii,kk);
+                    eid = sfemesh_hfid2eid(hfid);
+                    lid = sfemesh_hfid2lid(hfid);
+                    if eid~=0 && lid~=0
+                        mesh.sibhfs(eid,lid) = 0;
+                    end
+                end
+                break;
+            end
+        end
+    end
+end
+mesh = CompGeomesh_resize_coords(mesh, nv);
+
+mesh = CompGeomesh_delete(mesh);
+draw_delaunay_mesh3d(mesh)
 end

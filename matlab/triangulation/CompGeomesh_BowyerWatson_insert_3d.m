@@ -131,6 +131,7 @@ if inside_circum(xs_,mesh.coords(n,1:3))
     end
 else
     if nbad == 0
+        draw_delaunay_mesh3d(mesh);
         1;
     end
     return;
@@ -139,22 +140,26 @@ end
 
 function bool = inside_circum(ps,center)
 coder.inline('always');
-A = zeros(3,3);
-b = zeros(3,1);
-A(1:3,1) = ps(2,1:3)' - ps(1,1:3)';
-A(1:3,2) = ps(3,1:3)' - ps(1,1:3)';
-A(1:3,3) = ps(4,1:3)' - ps(1,1:3)';
-b(1) = 0.5*(ps(2,1:3)*ps(2,1:3)' - ps(1,1:3)*ps(1,1:3)');
-b(2) = 0.5*(ps(3,1:3)*ps(3,1:3)' - ps(1,1:3)*ps(1,1:3)');
-b(3) = 0.5*(ps(4,1:3)*ps(4,1:3)' - ps(1,1:3)*ps(1,1:3)');
-c = (A\b)';
-radius = norm(c - ps(1,1:3));
-bool  = norm(center - c) < radius;
+o = ones(4,1);
+a = zeros(4,4);a(1:4,1:3) = ps; a(1:4,4) = o;
+d = zeros(4,1);
+d(1) = ps(1,1:3)*ps(1,1:3)';
+d(2) = ps(2,1:3)*ps(2,1:3)';
+d(3) = ps(3,1:3)*ps(3,1:3)';
+d(4) = ps(4,1:3)*ps(4,1:3)';
+Dx = [d,ps(:,[2,3]),o];
+Dy = [d,ps(:,[1,3]),o];
+Dz = [d,ps(:,[1,2]),o];
+
+C = [det4(Dx),-det4(Dy),det4(Dz)]/(2*det4(a));
+radius = norm(ps(1,1:3)-C);
+
+bool = norm(center-C) < radius;
 end
 
 
 function d = det4(J)
-%det3 - Compute determinant of 4x4 matrix.
+%det4 - Compute determinant of 4x4 matrix.
 
 coder.inline('always');
 
